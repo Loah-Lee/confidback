@@ -90,6 +90,14 @@ confidback done       # 개선 완료 체크
 
 Windows는 아직 시험하지 않았습니다. 지금은 WSL에서 쓰는 것을 권합니다.
 
+## AI 스킬로 쓰기 (추천)
+
+```bash
+npx skills add Loah-Lee/confidback -g -y
+```
+
+한 번 설치하면 Claude Code·Codex 어디서든 작업 중인 세션에 "새 피드백 받아서 고쳐 줘"라고만 하면 됩니다. AI가 `pull` → 이 프로젝트의 피드백 고르기 → 이슈별 인터뷰 → `done`까지 진행합니다. 지금 열린 폴더가 곧 프로젝트라 프로젝트를 따로 묻지 않고, 새 세션도 띄우지 않습니다. CLI는 그대로 필요합니다(스킬이 CLI를 부릅니다).
+
 ## 보관함 서버 (Cloudflare Workers + R2)
 
 녹화 페이지와 보관함 API를 Cloudflare Worker 하나로 함께 내보냅니다. 의뢰자에게는 그 주소 하나만 보냅니다.

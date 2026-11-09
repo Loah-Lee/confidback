@@ -51,6 +51,7 @@
   <section>
     <h2>2. 이렇게 씁니다</h2>
     <table>
+      <tr><td>AI에게</td><td>"새 피드백 받아서 고쳐 줘" (아래 명령을 AI가 대신 실행)</td></tr>
       <tr><td>confidback pull</td><td>새 피드백 받아 정리</td></tr>
       <tr><td>confidback dashboard</td><td>캡처·원본 영상과 함께 보기</td></tr>
       <tr><td>confidback fix</td><td>프로젝트 고르면 AI가 인터뷰로 수정 시작</td></tr>
@@ -66,7 +67,7 @@
 const key = new URLSearchParams(location.hash.slice(1)).get('key');
 const valid = /^[0-9a-f]{32}$/.test(key ?? '');
 const server = location.protocol === 'https:' ? location.origin : 'https://confidback.<계정>.workers.dev';
-const cmd = 'brew install ffmpeg whisper.cpp && npm i -g github:Loah-Lee/confidback && '
+const cmd = 'brew install ffmpeg whisper.cpp && npm i -g github:Loah-Lee/confidback && npx -y skills add Loah-Lee/confidback -g -y && '
   + `confidback init --server ${server}` + (valid ? ` --key ${key}` : '');
 document.getElementById('cmd').textContent = cmd;
 document.getElementById('note').textContent = valid ? '' : '개발자 키는 init 중에 물어보면 넣어 주세요.';

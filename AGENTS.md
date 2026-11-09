@@ -12,4 +12,5 @@
 - `cli/confidback.mjs` — `init` · `pull` · `run` · `dashboard` · `fix` · `done` 명령. 설정과 세션은 `~/.confidback/`(테스트는 `CONFIDBACK_HOME`)에 둡니다. 받아쓰기는 config의 `mlxWhisper` 경로가 있으면 mlx_whisper, 없으면 whisper.cpp
 - `cli/dashboard.html` — 대시보드 템플릿. `__DATA__` 자리에 세션 JSON을 넣어 `~/.confidback/dashboard.html`로 씁니다
 - `cli/lib.mjs` — 순수 함수 (받아쓰기 파싱, 캡처 시점 고르기, 프롬프트, FEEDBACK.md 파싱, 메일 추출)
+- `skills/confidback/SKILL.md` — AI 에이전트용 스킬. 작업 중인 세션에서 pull → 피드백 고르기 → 인터뷰 → done 을 진행합니다. `npx skills add Loah-Lee/confidback -g`로 설치
 - `docs/integrations.md` — cmux · Orca 연동 안내
