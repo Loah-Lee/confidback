@@ -63,7 +63,7 @@ async function download(url, dest, headers) {
   fs.renameSync(`${dest}.part`, dest);
 }
 
-async function init() {
+async function init(preset = {}) {
   const installed = Object.keys(AGENTS).filter(has);
   if (!installed.length) die('Codex 또는 Claude Code CLI가 필요합니다.');
   const { ask, close } = prompter();
@@ -79,8 +79,9 @@ async function init() {
   const summarizer = await choose('피드백 정리에 쓰는 AI', installed.includes('codex') ? 'codex' : fixer);
   const mailTo = await ask('메일 받는 사람 (선택)');
   const glossary = await ask('자주 나오는 단어 — 앱 이름, 화면 이름 등을 쉼표로 (선택)');
-  const server = (await ask('보관함 주소 — 대표 녹화를 서버로 받을 때 (선택, 예: https://confidback.<계정>.workers.dev)')).replace(/\/+$/, '');
-  const devKey = server ? await ask('보관함 개발자 키', '', true) : '';
+  // 시작 페이지의 한 줄 명령은 --server, --key 로 보관함 연결을 미리 채웁니다.
+  const server = (preset.server ?? await ask('보관함 주소 — 대표 녹화를 서버로 받을 때 (선택, 예: https://confidback.<계정>.workers.dev)')).replace(/\/+$/, '');
+  const devKey = preset.key ?? (server ? await ask('보관함 개발자 키', '', true) : '');
 
   // Apple Silicon은 mlx_whisper가 더 빠릅니다. 가상환경 안의 실행 파일 경로를 저장해 두면 활성화 없이 씁니다.
   let mlxWhisper = '';
@@ -110,7 +111,7 @@ async function init() {
       : '  설치: ffmpeg 공식 배포판 + https://github.com/ggml-org/whisper.cpp/releases 를 받아 PATH에 추가');
   }
   if (!mlxWhisper && !fs.existsSync(config.whisperModel) &&
-      /^y/i.test(await ask(`\n받아쓰기 모델 ${model} 을(를) 지금 내려받을까요? (y/N)`, 'N'))) {
+      /^y/i.test(await ask(`\n받아쓰기 모델 ${model} 을(를) 지금 내려받을까요? (Y/n)`, 'Y'))) {
     await download(`${HF}/ggerganov/whisper.cpp/resolve/main/${model}`, config.whisperModel);
     await download(`${HF}/ggml-org/whisper-vad/resolve/main/${VAD}`, config.vadModel);
   }
@@ -306,9 +307,10 @@ async function fix(name, agent) {
   spawnSync(agent, args, { cwd: project, stdio: 'inherit' });
 }
 
-const { positionals, values } = parseArgs({ allowPositionals: true, options: { with: { type: 'string' } } });
+const { positionals, values } = parseArgs({ allowPositionals: true,
+  options: { with: { type: 'string' }, server: { type: 'string' }, key: { type: 'string' } } });
 const [cmd, arg] = positionals;
-if (cmd === 'init') await init();
+if (cmd === 'init') await init({ server: values.server, key: values.key });
 else if (cmd === 'run') await run(arg);
 else if (cmd === 'pull') await pull();
 else if (cmd === 'dashboard') dashboard();

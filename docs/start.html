@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confidback 시작하기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#F8FAFC; --fg:#0F172A; --muted:#475569; --line:#E2E8F0; --card:#FFFFFF; --code:#0F172A; --on-code:#E2E8F0; --accent:#15803D; --on-accent:#FFFFFF; --ring:#0F172A; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#0F172A; --fg:#F8FAFC; --muted:#94A3B8; --line:#475569; --card:#1B2336; --code:#0B1222; --on-code:#E2E8F0; --accent:#22C55E; --on-accent:#0F172A; --ring:#FFFFFF; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); line-height:1.65; font-family: "Noto Sans KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 10px; }
+  .muted { color: var(--muted); }
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin-top:16px; }
+  pre { margin:0; padding:14px 16px; background:var(--code); color:var(--on-code); border-radius:8px; overflow-x:auto;
+    font: .9rem/1.6 "JetBrains Mono", ui-monospace, Menlo, monospace; white-space: pre-wrap; word-break: break-all; }
+  .row { display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap; }
+  button { font: inherit; font-weight:700; min-height:44px; padding:0 18px; border-radius:8px; border:0; cursor:pointer;
+    background:var(--accent); color:var(--on-accent); transition: filter .15s; }
+  button:hover { filter: brightness(1.08); }
+  button:focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+  table { width:100%; border-collapse: collapse; }
+  td { padding: 6px 0; vertical-align: top; }
+  td:first-child { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; white-space: nowrap; padding-right: 16px; }
+  a { color: inherit; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Confidback 시작하기</h1>
+  <p class="muted">대표님이 화면을 보며 말로 한 피드백을 받아 정리하고, 쓰시는 AI(Claude Code · Codex)가 바로 수정을 시작하게 합니다.</p>
+
+  <section>
+    <h2>1. 아래 한 줄을 터미널에 붙여 넣기 (처음 한 번)</h2>
+    <pre id="cmd"></pre>
+    <div class="row">
+      <button id="copy" type="button">복사</button>
+      <span id="note" class="muted" role="status"></span>
+    </div>
+    <p class="muted">Mac 기준입니다. Codex나 Claude Code에 로그인돼 있어야 합니다. 질문이 나오면 엔터만 눌러도 됩니다.</p>
+  </section>
+
+  <section>
+    <h2>2. 이렇게 씁니다</h2>
+    <table>
+      <tr><td>confidback pull</td><td>새 피드백 받아 정리</td></tr>
+      <tr><td>confidback dashboard</td><td>캡처·원본 영상과 함께 보기</td></tr>
+      <tr><td>confidback fix</td><td>프로젝트 고르면 AI가 인터뷰로 수정 시작</td></tr>
+      <tr><td>confidback done</td><td>반영 끝나면 체크 (원본은 24시간 뒤 삭제)</td></tr>
+    </table>
+  </section>
+
+  <p class="muted">자세한 설명: <a href="https://github.com/Loah-Lee/confidback">github.com/Loah-Lee/confidback</a></p>
+</main>
+<script>
+// 보관함 주소는 이 페이지의 주소이고, 개발자 키는 링크의 #key= 에서 읽습니다(#뒤는 서버로 전송되지 않습니다).
+// 남이 만든 링크로 엉뚱한 명령이 끼어들지 않게, 키는 16진수 32자일 때만 넣습니다.
+const key = new URLSearchParams(location.hash.slice(1)).get('key');
+const valid = /^[0-9a-f]{32}$/.test(key ?? '');
+const server = location.protocol === 'https:' ? location.origin : 'https://confidback.<계정>.workers.dev';
+const cmd = 'brew install ffmpeg whisper.cpp && npm i -g github:Loah-Lee/confidback && '
+  + `confidback init --server ${server}` + (valid ? ` --key ${key}` : '');
+document.getElementById('cmd').textContent = cmd;
+document.getElementById('note').textContent = valid ? '' : '개발자 키는 init 중에 물어보면 넣어 주세요.';
+const copy = document.getElementById('copy');
+copy.onclick = async () => {
+  try { await navigator.clipboard.writeText(cmd); copy.textContent = '복사됨'; }
+  catch { copy.textContent = '직접 선택해 복사해 주세요'; }
+  setTimeout(() => (copy.textContent = '복사'), 1500);
+};
+</script>
+</body>
+</html>
