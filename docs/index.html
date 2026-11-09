@@ -67,63 +67,52 @@
   #msg { margin: 12px 0 0; color: var(--danger-text); font-weight: 500; }
   #msg:empty { display: none; }
   [hidden] { display: none !important; }
+  details { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 20px; margin-top:20px; }
+  summary { cursor:pointer; font-weight:700; min-height:28px; }
+  details[open] summary { margin-bottom:8px; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body data-os="win" data-mode="file">
 <main>
-  <h1>화면 보면서 말로 피드백하기</h1>
-  <p class="lead">글로 정리하실 필요 없습니다. 화면을 보며 말씀만 하시면 개발자가 받아서 정리합니다.</p>
+  <h1>말로 피드백 녹화</h1>
 
   <section aria-labelledby="s0">
-    <h2 id="s0">쓰시는 컴퓨터</h2>
+    <h2 id="s0"><span class="step" aria-hidden="true">1</span>운영체제 선택</h2>
     <div class="os-pick" role="radiogroup" aria-labelledby="s0">
       <label><input type="radio" name="os" value="mac">Mac</label>
       <label><input type="radio" name="os" value="win">Windows</label>
       <label><input type="radio" name="os" value="linux">Linux</label>
     </div>
-    <p class="hint">자동으로 골라 두었습니다. 다르면 눌러서 바꿔 주세요. 아래 안내가 바로 바뀝니다.</p>
   </section>
 
   <section aria-labelledby="s1">
-    <h2 id="s1"><span class="step" aria-hidden="true">1</span>모바일 화면으로 앱 열기</h2>
+    <h2 id="s1"><span class="step" aria-hidden="true">2</span>모바일 화면으로 앱 열기</h2>
     <ol>
-      <li>이 페이지는 그대로 두고, <b>새 탭</b>에서 개발자가 보내 준 앱 주소를 엽니다.
-        <span class="muted" data-os="win">크롬이 없으면 엣지에서 해도 됩니다. 단축키가 같습니다.</span></li>
-      <li>개발자 도구를 엽니다.
+      <li>크롬 새 탭에서 앱 주소 열기<span class="muted" data-os="win"> (엣지도 가능)</span></li>
+      <li>개발자 도구
         <span data-os="mac"><kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>I</kbd></span>
-        <span data-os="win linux"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd> (또는 <kbd>F12</kbd>)</span><br>
-        <span class="muted">화면 빈 곳을 오른쪽 클릭하고 <b>검사</b>를 눌러도 됩니다.</span></li>
-      <li>모바일 화면으로 바꿉니다. 개발자 도구를 한 번 클릭한 뒤
+        <span data-os="win linux"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd></span></li>
+      <li>모바일 화면
         <span data-os="mac"><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>M</kbd></span>
-        <span data-os="win linux"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></span><br>
-        <span class="muted">개발자 도구 왼쪽 위의 휴대폰·태블릿 모양 아이콘을 눌러도 됩니다.</span></li>
-      <li>화면 맨 위 <b>크기(Dimensions)</b> 목록에서 개발자가 알려 준 기기를 고릅니다. 예: iPhone 14 Pro Max</li>
-      <li>새로고침합니다.
+        <span data-os="win linux"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></span></li>
+      <li>상단 <b>Dimensions</b>에서 기기 선택</li>
+      <li>새로고침
         <span data-os="mac"><kbd>⌘</kbd> + <kbd>R</kbd></span>
         <span data-os="win linux"><kbd>F5</kbd></span></li>
     </ol>
-    <p class="tip">개발자 도구가 앱 화면을 가리면 개발자 도구 오른쪽 위 <b>⋮</b> → <b>도킹 위치</b>에서 오른쪽을 고르세요.
-      마우스가 손가락 역할을 합니다. 클릭은 탭, 끌기는 스와이프입니다.</p>
   </section>
 
   <section aria-labelledby="s2">
-    <h2 id="s2"><span class="step" aria-hidden="true">2</span>녹화하고 말로 피드백하기</h2>
+    <h2 id="s2"><span class="step" aria-hidden="true">3</span>녹화</h2>
     <ol>
-      <li>아래 <b>녹화 시작</b>을 누르고 마이크를 허용합니다.</li>
-      <li>공유할 화면을 고르는 창이 뜨면 <b>창</b>에서 앱을 띄운 브라우저 창을 고릅니다.
-        <span class="muted">마우스 위치까지 녹화돼야 어디를 가리키셨는지 알 수 있습니다.</span>
-        <span class="muted" data-os="linux">시스템의 화면 공유 창이 한 번 더 뜨면 같은 창을 골라 공유를 누릅니다.</span></li>
-      <li>앱 탭으로 가서 화면을 넘기며 편하게 말씀하세요.</li>
-      <li>끝나면 화면 위에 떠 있는 작은 창의 <b>녹화 끝</b>을 누릅니다. 이 창은 끌어서 원하는 곳으로 옮길 수 있습니다.
-        <span class="muted">화면 아래 <b>공유 중지</b>를 눌러도 끝납니다.</span></li>
+      <li><b>녹화 시작</b> → 마이크 허용</li>
+      <li><b>창</b> 탭 → 앱 띄운 크롬 창 선택<span class="muted" data-os="linux"> (시스템 공유 창이 또 뜨면 같은 창)</span></li>
+      <li>앱 화면 넘기며 말하기. 가리킬 땐 마우스 올리기</li>
+      <li>떠 있는 창의 <b>녹화 끝</b><span data-mode="upload"> → 자동 전송</span><span data-mode="file"> → 저장된 파일 개발자에게 전송</span></li>
     </ol>
-    <p class="tip" data-os="mac">처음 녹화할 때 화면 기록 권한을 물으면 <b>시스템 설정 → 개인정보 보호 및 보안 → 화면 및 시스템 오디오 녹음</b>에서
-      Google Chrome을 켜고, 크롬을 다시 연 뒤 이 페이지로 돌아오세요.</p>
-    <p class="tip" data-os="win">마이크가 잡히지 않으면 <b>설정 → 개인 정보 및 보안 → 마이크</b>에서 앱의 마이크 사용을 허용해 주세요.</p>
-    <p class="tip">"이 버튼", "여기"라고 말씀하실 때 마우스를 그 위에 올려 두시면 정확하게 전달됩니다.
-      <span data-mode="file">녹화 파일은 이 컴퓨터에만 저장되고 어디에도 올라가지 않습니다.</span>
-      <span data-mode="upload">녹화가 끝나면 개발자 전용 보관함으로 바로 보내집니다. 개발자만 볼 수 있습니다.</span></p>
+    <p class="tip" data-os="mac">권한 요청 시: 시스템 설정 → 개인정보 보호 및 보안 → 화면 및 시스템 오디오 녹음 → Chrome 켜고 크롬 재시작</p>
+    <p class="tip" data-os="win">마이크 안 잡힐 때: 설정 → 개인 정보 및 보안 → 마이크 허용</p>
 
     <div class="controls">
       <div id="idle">
@@ -141,9 +130,8 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>녹화 끝
           </button>
         </div>
-        <button id="pipbtn" class="ghost" type="button" hidden>떠 있는 녹화 창 열기</button>
-        <p class="hint">이제 앱 탭으로 가서 말씀하세요. 녹화 끝 버튼이 있는 작은 창이 화면 위에 떠 있고, 끌어서 옮길 수 있습니다.
-          말할 때 마이크 막대가 움직이면 제대로 녹음되고 있는 것입니다.</p>
+        <button id="pipbtn" class="ghost" type="button" hidden>녹화 창 띄우기</button>
+        <p class="hint">앱 탭으로 이동. 녹화 창은 끌어서 이동 가능</p>
       </div>
 
       <div id="done" hidden>
@@ -159,33 +147,26 @@
     </div>
   </section>
 
-  <section aria-labelledby="s3">
-    <h2 id="s3">녹화 버튼이 안 될 때: 컴퓨터 기본 녹화</h2>
-    <p class="muted" style="margin:0 0 8px">화면과 목소리가 함께 녹화되면 어떤 방법이든 괜찮습니다.
-      <span data-mode="file">만든 파일을 개발자에게 보내 주세요.</span>
-      <span data-mode="upload">만든 파일은 이 섹션 맨 아래에서 바로 보낼 수 있습니다.</span></p>
+  <details>
+    <summary>녹화 버튼이 안 될 때</summary>
     <ol data-os="mac">
-      <li><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>5</kbd>를 누릅니다.</li>
-      <li>아래 막대의 <b>옵션</b>에서 마이크를 <b>내장 마이크</b>로 고르고 <b>마우스 클릭 보기</b>를 켭니다.</li>
-      <li><b>전체 화면 기록</b>을 고르고 <b>기록</b>을 누릅니다.</li>
-      <li>끝나면 화면 맨 위 메뉴 막대의 <b>■</b>를 누릅니다. 바탕화면에 동영상 파일이 생깁니다.</li>
+      <li><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>5</kbd> → <b>옵션</b>: 마이크 켜기</li>
+      <li><b>전체 화면 기록</b> → 끝나면 메뉴 막대 <b>■</b></li>
     </ol>
     <ol data-os="win">
-      <li>Windows 11: <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd>로 캡처 도구 녹화를 엽니다.</li>
-      <li>녹화할 영역을 끌어서 정하고, 위쪽 막대의 <b>마이크</b> 아이콘을 켠 뒤 <b>시작</b>을 누릅니다.</li>
-      <li>끝나면 <b>중지</b>를 누르고 저장합니다 (<kbd>Ctrl</kbd> + <kbd>S</kbd>).</li>
-      <li>Windows 10: <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>M</kbd>으로 마이크를 켜고 <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd>로 녹화를 시작·종료합니다. 파일은 <b>동영상 → 캡처</b> 폴더에 생깁니다.</li>
+      <li>Windows 11: <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> → 영역 지정 → 마이크 켜기 → 시작</li>
+      <li>Windows 10: <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>M</kbd>(마이크) → <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd>(녹화)</li>
     </ol>
     <ol data-os="linux">
-      <li>Ubuntu 기본 화면 녹화(<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd>)는 소리가 녹음되지 않습니다.</li>
-      <li>소프트웨어 센터에서 <b>Kooha</b>를 설치하고, 마이크를 켠 뒤 녹화합니다. OBS Studio도 됩니다.</li>
+      <li>Kooha 또는 OBS에서 마이크 켜고 녹화 (기본 녹화는 소리 없음)</li>
     </ol>
+    <p class="muted" data-mode="file">만든 파일 개발자에게 전송</p>
     <div data-mode="upload" class="actions">
-      <label class="btn ghost" style="position:relative">만든 동영상 파일 보내기
+      <label class="btn ghost" style="position:relative">동영상 파일 보내기
         <input id="filepick" type="file" accept="video/*" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
     </div>
     <p id="filemsg" class="hint" role="status" data-mode="upload"></p>
-  </section>
+  </details>
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
@@ -204,14 +185,14 @@ const stopStreams = () => { streams.forEach((s) => s.getTracks().forEach((t) => 
 $('start').onclick = async () => {
   $('msg').textContent = '';
   if (!navigator.mediaDevices?.getDisplayMedia || !window.MediaRecorder) {
-    $('msg').textContent = 'PC용 크롬(Windows는 엣지도 됨)에서 열어 주세요. 안 되면 아래 컴퓨터 기본 녹화를 쓰세요.';
+    $('msg').textContent = 'PC 크롬(Windows는 엣지)에서 열기. 안 되면 아래 기본 녹화 사용';
     return;
   }
   let mic, screen;
   try {
     mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
   } catch {
-    $('msg').textContent = '마이크를 쓸 수 없습니다. 주소창 왼쪽 아이콘을 눌러 마이크를 허용한 뒤 다시 눌러 주세요.';
+    $('msg').textContent = '마이크 차단됨. 주소창 왼쪽 아이콘 → 마이크 허용 후 다시 시작';
     return;
   }
   try {
@@ -219,7 +200,7 @@ $('start').onclick = async () => {
     screen = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'window', frameRate: { ideal: 10, max: 15 } }, audio: false });
   } catch {
     mic.getTracks().forEach((t) => t.stop());
-    $('msg').textContent = '공유할 화면을 고르지 않으셨거나 화면 기록 권한이 없습니다. 위 안내를 확인하고 다시 눌러 주세요.';
+    $('msg').textContent = '화면 선택 취소 또는 권한 없음. 다시 시작';
     return;
   }
   streams = [mic, screen];
@@ -291,8 +272,7 @@ function save() {
   show('done');
   if (KEY) return upload(blob, $('donemsg'));
   a.click();
-  $('donemsg').textContent = `${name} 파일이 다운로드 폴더에 저장됐습니다 (${(blob.size / 2 ** 20).toFixed(1)}MB). `
-    + '이 파일을 메일이나 카카오톡으로 개발자에게 보내 주시면 끝입니다.';
+  $('donemsg').textContent = `다운로드 폴더에 저장: ${name} (${(blob.size / 2 ** 20).toFixed(1)}MB) → 개발자에게 전송`;
 }
 
 // 링크에 업로드 키가 있으면 개발자 보관함(같은 주소의 /api/upload)으로 바로 보냅니다.
@@ -301,17 +281,17 @@ document.body.dataset.mode = KEY ? 'upload' : 'file';
 let uploading = false;
 async function upload(file, msg) {
   uploading = true;
-  msg.textContent = '개발자에게 보내는 중입니다. 이 창을 닫지 말아 주세요…';
+  msg.textContent = '전송 중… 창 닫기 금지';
   try {
     const r = await fetch('/api/upload', { method: 'POST', headers: { 'X-Upload-Key': KEY, 'Content-Type': file.type || 'video/webm' }, body: file });
     if (r.status === 507) {
-      msg.textContent = '보관함이 가득 차서 보내지 못했습니다. 개발자에게 알려 주시고, 파일로 저장해 메일이나 카카오톡으로 보내 주세요.';
+      msg.textContent = '보관함 가득 참. 파일로 저장해 개발자에게 전송';
       return;
     }
     if (!r.ok) throw new Error(r.status);
-    msg.textContent = '개발자에게 보냈습니다. 따로 보내실 필요 없습니다.';
+    msg.textContent = '전송 완료';
   } catch {
-    msg.textContent = '보내지 못했습니다. 파일로 저장한 뒤 메일이나 카카오톡으로 보내 주세요.';
+    msg.textContent = '전송 실패. 파일로 저장해 개발자에게 전송';
   } finally {
     uploading = false;
   }
