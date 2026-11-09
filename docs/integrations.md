@@ -47,7 +47,7 @@ cmux set-progress 0.5 --label "피드백 2/4 반영"
 
 **이슈를 GitHub Issues로 올려 Orca 작업 목록에 띄우기.** Orca는 GitHub Issues를 작업 목록에 보여 주고, 작업마다 worktree 에이전트를 붙일 수 있습니다. 이슈는 쓰고 있는 AI에게 이렇게 시키면 됩니다.
 
-> `~/.confidback/<세션>/FEEDBACK.md`의 "## 이슈"를 하나씩 `gh issue create`로 올려 줘. 제목은 이슈 제목, 본문은 화면·대표 말씀·바꿀 것. 캡처 이미지는 올리지 마.
+> `~/.confidback/<세션>/FEEDBACK.md`의 "## 이슈"를 하나씩 `gh issue create`로 올려 줘. 제목은 이슈 제목, 본문은 화면·의뢰자 말씀·바꿀 것. 캡처 이미지는 올리지 마.
 
 고객사 화면과 발언이 담기므로 **비공개 저장소에서만** 하세요.
 

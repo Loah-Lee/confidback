@@ -7,7 +7,7 @@
 
 ## 구조
 
-- `docs/index.html` — 대표 안내·녹화 페이지. 링크에 업로드 키(`?k=`)가 있으면 녹화를 보관함으로 바로 보내고, 없으면 파일로 내려받게 합니다.
+- `docs/index.html` — 의뢰자 안내·녹화 페이지. 링크에 업로드 키(`?k=`)가 있으면 녹화를 보관함으로 바로 보내고, 없으면 파일로 내려받게 합니다.
 - `server/` — 보관함 Worker(Cloudflare Workers + R2). 원본 저장·조회·개선 완료 체크와, 체크 24시간 뒤 삭제(cron)만 합니다. 받아쓰기·정리는 하지 않습니다.
 - `cli/confidback.mjs` — `init` · `pull` · `run` · `dashboard` · `fix` · `done` 명령. 설정과 세션은 `~/.confidback/`(테스트는 `CONFIDBACK_HOME`)에 둡니다. 받아쓰기는 config의 `mlxWhisper` 경로가 있으면 mlx_whisper, 없으면 whisper.cpp
 - `cli/dashboard.html` — 대시보드 템플릿. `__DATA__` 자리에 세션 JSON을 넣어 `~/.confidback/dashboard.html`로 씁니다

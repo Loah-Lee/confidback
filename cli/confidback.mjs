@@ -80,7 +80,7 @@ async function init(preset = {}) {
   const mailTo = await ask('메일 받는 사람 (선택)');
   const glossary = await ask('자주 나오는 단어 — 앱 이름, 화면 이름 등을 쉼표로 (선택)');
   // 시작 페이지의 한 줄 명령은 --server, --key 로 보관함 연결을 미리 채웁니다.
-  const server = (preset.server ?? await ask('보관함 주소 — 대표 녹화를 서버로 받을 때 (선택, 예: https://confidback.<계정>.workers.dev)')).replace(/\/+$/, '');
+  const server = (preset.server ?? await ask('보관함 주소 — 의뢰자 녹화를 서버로 받을 때 (선택, 예: https://confidback.<계정>.workers.dev)')).replace(/\/+$/, '');
   const devKey = preset.key ?? (server ? await ask('보관함 개발자 키', '', true) : '');
 
   // Apple Silicon은 mlx_whisper가 더 빠릅니다. 가상환경 안의 실행 파일 경로를 저장해 두면 활성화 없이 씁니다.
@@ -167,7 +167,7 @@ async function run(video) {
   sh('ffmpeg', ['-y', '-loglevel', 'error', '-i', video, '-vn', '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le', wav]);
   const vol = spawnSync('ffmpeg', ['-i', wav, '-af', 'volumedetect', '-f', 'null', '-'], { encoding: 'utf8' }).stderr;
   // 말소리는 보통 -30dB보다 크고, 꺼진 마이크는 -60dB 아래입니다.
-  if (!(lib.parseMaxVolume(vol) > -45)) die('녹화에 소리가 거의 없습니다. 대표님 마이크가 꺼져 있었는지 확인하고 다시 녹화해 주세요.');
+  if (!(lib.parseMaxVolume(vol) > -45)) die('녹화에 소리가 거의 없습니다. 의뢰자 마이크가 꺼져 있었는지 확인하고 다시 녹화해 주세요.');
   if (cfg.mlxWhisper) {
     // VAD가 없으므로 이전 문장 이어 쓰기를 끄고, 긴 침묵 속 환각 구간을 건너뜁니다.
     const margs = [wav, '--model', MLX_MODEL, '--language', 'ko', '--output-dir', dir, '--output-name', 'transcript',
@@ -316,7 +316,7 @@ else if (cmd === 'pull') await pull();
 else if (cmd === 'dashboard') dashboard();
 else if (cmd === 'fix') await fix(arg, values.with);
 else if (cmd === 'done') await done(arg);
-else console.log(`confidback — 대표의 화면·음성 피드백을 정리해 코딩 AI에게 넘깁니다. (보관 위치: ${short(ROOT)})
+else console.log(`confidback — 의뢰자의 화면·음성 피드백을 정리해 코딩 AI에게 넘깁니다. (보관 위치: ${short(ROOT)})
 
   confidback init               쓰는 AI 고르기, 받아쓰기 모델 준비, 보관함 연결 (개발자마다 한 번)
   confidback pull               보관함에 쌓인 새 녹화를 받아 정리

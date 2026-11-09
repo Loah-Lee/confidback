@@ -115,7 +115,7 @@ const stat = (k, v) => h('div', { className: 'stat' }, h('b', { textContent: Str
 const projectName = (s) => s.project?.split('/').pop() ?? null;
 const field = (k, v) => v ? h('p', { className: 'field' }, h('b', { textContent: k }), v) : null;
 
-// 원본 녹화를 그 시점부터 재생합니다. 대표 말이 애매할 때 직접 듣고 보기 위해서입니다.
+// 원본 녹화를 그 시점부터 재생합니다. 의뢰자 말이 애매할 때 직접 듣고 보기 위해서입니다.
 const secs = (t) => t.split(':').reduce((a, b) => a * 60 + Number(b), 0);
 function seek(t) {
   const v = document.getElementById('original');
@@ -185,7 +185,7 @@ function renderSession(s) {
       ? h('ol', { className: 'issues', ariaLabel: '이슈 목록' }, ...s.issues.map((i, n) => issue(i, n, dir, !!s.video)))
       : h('pre', { className: 'raw', textContent: s.md }),
     s.confirm.length
-      ? h('section', { className: 'panel warn' }, h('h3', { textContent: '대표에게 확인할 것' }),
+      ? h('section', { className: 'panel warn' }, h('h3', { textContent: '의뢰자에게 확인할 것' }),
           h('ul', {}, ...s.confirm.map((c) => h('li', { textContent: c }))))
       : null,
     s.email

@@ -1,6 +1,6 @@
 {
   // Confidback 보관함. 배포 방법은 README의 "보관함 서버" 참고.
-  // 녹화 페이지(docs/)를 같은 주소에서 함께 내보내므로 대표에게는 이 주소 하나만 보냅니다.
+  // 녹화 페이지(docs/)를 같은 주소에서 함께 내보내므로 의뢰자에게는 이 주소 하나만 보냅니다.
   "name": "confidback",
   "main": "worker.js",
   "compatibility_date": "2025-09-01",
