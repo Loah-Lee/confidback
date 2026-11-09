@@ -30,10 +30,17 @@ const same = (given, secret) => {
 };
 
 // 체크 표시(done/<이름>) 중 보관 시간이 지난 것
+// 디스코드 알림. 피드백 내용·화면은 담지 않고 도착 사실만 알립니다. 알림 실패가 업로드를 막지 않게 합니다.
+const notify = (url, size) => fetch(url, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ content: `새 피드백 도착 (${(size / 2 ** 20).toFixed(1)}MB) · AI에게 "새 피드백 받아서 고쳐 줘" 또는 \`confidback pull\`` }),
+}).catch(() => {});
+
 export const expired = (markers, now, ms) => markers.filter((o) => now - new Date(o.uploaded).getTime() >= ms);
 
 export default {
-  async fetch(req, env) {
+  async fetch(req, env, ctx) {
     const { pathname, searchParams } = new URL(req.url);
     if (!pathname.startsWith('/api/')) return env.ASSETS.fetch(req);
 
@@ -46,6 +53,7 @@ export default {
       if ((await usedBytes(env.BUCKET)) + size > maxTotal(env)) return json({ error: 'storage full' }, 507);
       const name = `${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}-${crypto.randomUUID().slice(0, 8)}`;
       await env.BUCKET.put(`rec/${name}.${TYPES[type]}`, req.body, { httpMetadata: { contentType: type } });
+      if (env.DISCORD_WEBHOOK_URL) ctx.waitUntil(notify(env.DISCORD_WEBHOOK_URL, size));
       return json({ name });
     }
 
