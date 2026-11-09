@@ -1,0 +1,11 @@
+{
+  "name": "confidback",
+  "version": "0.1.0",
+  "description": "대표가 화면을 보며 말로 한 피드백을 정리해 코딩 AI(Codex · Claude Code)에게 넘기는 도구",
+  "type": "module",
+  "bin": { "confidback": "cli/confidback.mjs" },
+  "files": ["cli"],
+  "engines": { "node": ">=20" },
+  "scripts": { "test": "node --test" },
+  "license": "MIT"
+}

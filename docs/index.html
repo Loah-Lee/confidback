@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confidback 피드백 녹화</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#F8FAFC; --fg:#0F172A; --muted:#475569; --line:#E2E8F0; --card:#FFFFFF; --soft:#F1F5F9;
+    --accent:#15803D; --on-accent:#FFFFFF; --rec:#DC2626; --on-rec:#FFFFFF; --danger-text:#B91C1C; --ring:#0F172A;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0F172A; --fg:#F8FAFC; --muted:#94A3B8; --line:#475569; --card:#1B2336; --soft:#272F42;
+      --accent:#22C55E; --on-accent:#0F172A; --rec:#EF4444; --on-rec:#000000; --danger-text:#F87171; --ring:#FFFFFF;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); line-height:1.65;
+    font-family: "Noto Sans KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  /* 고른 컴퓨터의 안내만 보입니다. data-os="win linux" 처럼 여러 개를 적을 수 있습니다. */
+  body[data-os="mac"] [data-os]:not([data-os~="mac"]),
+  body[data-os="win"] [data-os]:not([data-os~="win"]),
+  body[data-os="linux"] [data-os]:not([data-os~="linux"]) { display: none; }
+  /* 링크에 업로드 키(?k=)가 있으면 보관함으로 바로 보내는 안내만, 없으면 파일로 보내는 안내만 보입니다. */
+  body[data-mode="file"] [data-mode="upload"], body[data-mode="upload"] [data-mode="file"] { display: none; }
+  main { max-width: 680px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.15rem; margin: 0 0 12px; display:flex; align-items:center; gap:10px; }
+  .step { display:inline-grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--fg); color:var(--bg); font-size:.9rem; flex:none; }
+  .lead, .muted { color: var(--muted); }
+  section { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin-top:20px; }
+  ol { padding-left: 1.3em; margin: 0; } li { margin: 8px 0; }
+  kbd { font: inherit; font-size: .85em; padding: 1px 6px; border:1px solid var(--line); box-shadow: 0 1px 0 var(--line); border-radius:5px; white-space:nowrap; background:var(--soft); }
+  .tip { font-size: .95rem; color: var(--muted); margin: 14px 0 0; padding: 12px 14px; background: var(--soft); border-radius: 8px; }
+  .os-pick { display:flex; flex-wrap:wrap; gap:8px; margin: 4px 0 0; }
+  .os-pick label { position:relative; display:inline-flex; align-items:center; min-height:44px; padding:0 20px; border:1px solid var(--line);
+    border-radius:999px; background:var(--card); font-weight:500; cursor:pointer; transition: background-color .15s, border-color .15s; }
+  .os-pick label:hover { border-color: var(--muted); }
+  .os-pick input { position:absolute; opacity:0; inset:0; margin:0; cursor:pointer; }
+  .os-pick label:has(input:checked) { background:var(--fg); color:var(--bg); border-color:var(--fg); font-weight:700; }
+  .os-pick label:has(input:focus-visible) { outline: 3px solid var(--ring); outline-offset: 2px; }
+  button, .btn { font: inherit; font-size: 1.05rem; font-weight: 700; min-height: 48px; padding: 0 22px; border-radius: 10px; border: 1px solid transparent;
+    cursor: pointer; background: var(--accent); color: var(--on-accent); text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px; transition: filter .15s, background-color .15s; }
+  button:hover, .btn:hover { filter: brightness(1.08); }
+  button.stop { background: var(--rec); color: var(--on-rec); }
+  .ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+  button:focus-visible, a.btn:focus-visible, .btn:has(input:focus-visible) { outline: 3px solid var(--ring); outline-offset: 2px; }
+  svg { width: 20px; height: 20px; flex: none; }
+  .controls { margin-top: 18px; }
+  .rec { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .live { display:inline-flex; align-items:center; gap:8px; font-weight:700; }
+  .dot { width:12px; height:12px; border-radius:50%; background:var(--rec); }
+  #timer { font-variant-numeric: tabular-nums; font-size: 1.2rem; font-weight: 700; }
+  .mic { display:inline-flex; align-items:center; gap:8px; font-size:.95rem; color:var(--muted); }
+  meter { width: 120px; height: 12px; }
+  .hint { margin: 12px 0 0; color: var(--muted); font-size: .95rem; }
+  #pipbtn { margin-top: 12px; }
+  /* 떠 있는 녹화 창(문서 PIP) 안의 모습 */
+  body.pip { padding: 12px 14px; display:flex; align-items:center; min-height:100vh; }
+  body.pip .rec { gap: 12px; }
+  .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  #msg { margin: 12px 0 0; color: var(--danger-text); font-weight: 500; }
+  #msg:empty { display: none; }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body data-os="win" data-mode="file">
+<main>
+  <h1>화면 보면서 말로 피드백하기</h1>
+  <p class="lead">글로 정리하실 필요 없습니다. 화면을 보며 말씀만 하시면 개발자가 받아서 정리합니다.</p>
+
+  <section aria-labelledby="s0">
+    <h2 id="s0">쓰시는 컴퓨터</h2>
+    <div class="os-pick" role="radiogroup" aria-labelledby="s0">
+      <label><input type="radio" name="os" value="mac">Mac</label>
+      <label><input type="radio" name="os" value="win">Windows</label>
+      <label><input type="radio" name="os" value="linux">Linux</label>
+    </div>
+    <p class="hint">자동으로 골라 두었습니다. 다르면 눌러서 바꿔 주세요. 아래 안내가 바로 바뀝니다.</p>
+  </section>
+
+  <section aria-labelledby="s1">
+    <h2 id="s1"><span class="step" aria-hidden="true">1</span>모바일 화면으로 앱 열기</h2>
+    <ol>
+      <li>이 페이지는 그대로 두고, <b>새 탭</b>에서 개발자가 보내 준 앱 주소를 엽니다.
+        <span class="muted" data-os="win">크롬이 없으면 엣지에서 해도 됩니다. 단축키가 같습니다.</span></li>
+      <li>개발자 도구를 엽니다.
+        <span data-os="mac"><kbd>⌘</kbd> + <kbd>⌥</kbd> + <kbd>I</kbd></span>
+        <span data-os="win linux"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd> (또는 <kbd>F12</kbd>)</span><br>
+        <span class="muted">화면 빈 곳을 오른쪽 클릭하고 <b>검사</b>를 눌러도 됩니다.</span></li>
+      <li>모바일 화면으로 바꿉니다. 개발자 도구를 한 번 클릭한 뒤
+        <span data-os="mac"><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>M</kbd></span>
+        <span data-os="win linux"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></span><br>
+        <span class="muted">개발자 도구 왼쪽 위의 휴대폰·태블릿 모양 아이콘을 눌러도 됩니다.</span></li>
+      <li>화면 맨 위 <b>크기(Dimensions)</b> 목록에서 개발자가 알려 준 기기를 고릅니다. 예: iPhone 14 Pro Max</li>
+      <li>새로고침합니다.
+        <span data-os="mac"><kbd>⌘</kbd> + <kbd>R</kbd></span>
+        <span data-os="win linux"><kbd>F5</kbd></span></li>
+    </ol>
+    <p class="tip">개발자 도구가 앱 화면을 가리면 개발자 도구 오른쪽 위 <b>⋮</b> → <b>도킹 위치</b>에서 오른쪽을 고르세요.
+      마우스가 손가락 역할을 합니다. 클릭은 탭, 끌기는 스와이프입니다.</p>
+  </section>
+
+  <section aria-labelledby="s2">
+    <h2 id="s2"><span class="step" aria-hidden="true">2</span>녹화하고 말로 피드백하기</h2>
+    <ol>
+      <li>아래 <b>녹화 시작</b>을 누르고 마이크를 허용합니다.</li>
+      <li>공유할 화면을 고르는 창이 뜨면 <b>창</b>에서 앱을 띄운 브라우저 창을 고릅니다.
+        <span class="muted">마우스 위치까지 녹화돼야 어디를 가리키셨는지 알 수 있습니다.</span>
+        <span class="muted" data-os="linux">시스템의 화면 공유 창이 한 번 더 뜨면 같은 창을 골라 공유를 누릅니다.</span></li>
+      <li>앱 탭으로 가서 화면을 넘기며 편하게 말씀하세요.</li>
+      <li>끝나면 화면 위에 떠 있는 작은 창의 <b>녹화 끝</b>을 누릅니다. 이 창은 끌어서 원하는 곳으로 옮길 수 있습니다.
+        <span class="muted">화면 아래 <b>공유 중지</b>를 눌러도 끝납니다.</span></li>
+    </ol>
+    <p class="tip" data-os="mac">처음 녹화할 때 화면 기록 권한을 물으면 <b>시스템 설정 → 개인정보 보호 및 보안 → 화면 및 시스템 오디오 녹음</b>에서
+      Google Chrome을 켜고, 크롬을 다시 연 뒤 이 페이지로 돌아오세요.</p>
+    <p class="tip" data-os="win">마이크가 잡히지 않으면 <b>설정 → 개인 정보 및 보안 → 마이크</b>에서 앱의 마이크 사용을 허용해 주세요.</p>
+    <p class="tip">"이 버튼", "여기"라고 말씀하실 때 마우스를 그 위에 올려 두시면 정확하게 전달됩니다.
+      <span data-mode="file">녹화 파일은 이 컴퓨터에만 저장되고 어디에도 올라가지 않습니다.</span>
+      <span data-mode="upload">녹화가 끝나면 개발자 전용 보관함으로 바로 보내집니다. 개발자만 볼 수 있습니다.</span></p>
+
+    <div class="controls">
+      <div id="idle">
+        <button id="start" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="currentColor"/></svg>녹화 시작
+        </button>
+      </div>
+
+      <div id="recording" hidden>
+        <div id="recbar" class="rec" role="status">
+          <span class="live"><span class="dot" aria-hidden="true"></span>녹화 중</span>
+          <span id="timer" aria-hidden="true">00:00</span>
+          <label class="mic">마이크 <meter id="level" min="0" max="1" low="0.04" optimum="0.5" value="0"></meter></label>
+          <button id="stop" class="stop" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>녹화 끝
+          </button>
+        </div>
+        <button id="pipbtn" class="ghost" type="button" hidden>떠 있는 녹화 창 열기</button>
+        <p class="hint">이제 앱 탭으로 가서 말씀하세요. 녹화 끝 버튼이 있는 작은 창이 화면 위에 떠 있고, 끌어서 옮길 수 있습니다.
+          말할 때 마이크 막대가 움직이면 제대로 녹음되고 있는 것입니다.</p>
+      </div>
+
+      <div id="done" hidden>
+        <p id="donemsg" role="status"></p>
+        <div class="actions">
+          <a id="again" class="btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg><span data-mode="file">파일 다시 받기</span><span data-mode="upload">파일로도 저장</span>
+          </a>
+          <button id="restart" class="ghost" type="button">새로 녹화</button>
+        </div>
+      </div>
+      <p id="msg" role="alert"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="s3">
+    <h2 id="s3">녹화 버튼이 안 될 때: 컴퓨터 기본 녹화</h2>
+    <p class="muted" style="margin:0 0 8px">화면과 목소리가 함께 녹화되면 어떤 방법이든 괜찮습니다.
+      <span data-mode="file">만든 파일을 개발자에게 보내 주세요.</span>
+      <span data-mode="upload">만든 파일은 이 섹션 맨 아래에서 바로 보낼 수 있습니다.</span></p>
+    <ol data-os="mac">
+      <li><kbd>⌘</kbd> + <kbd>⇧</kbd> + <kbd>5</kbd>를 누릅니다.</li>
+      <li>아래 막대의 <b>옵션</b>에서 마이크를 <b>내장 마이크</b>로 고르고 <b>마우스 클릭 보기</b>를 켭니다.</li>
+      <li><b>전체 화면 기록</b>을 고르고 <b>기록</b>을 누릅니다.</li>
+      <li>끝나면 화면 맨 위 메뉴 막대의 <b>■</b>를 누릅니다. 바탕화면에 동영상 파일이 생깁니다.</li>
+    </ol>
+    <ol data-os="win">
+      <li>Windows 11: <kbd>Win</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd>로 캡처 도구 녹화를 엽니다.</li>
+      <li>녹화할 영역을 끌어서 정하고, 위쪽 막대의 <b>마이크</b> 아이콘을 켠 뒤 <b>시작</b>을 누릅니다.</li>
+      <li>끝나면 <b>중지</b>를 누르고 저장합니다 (<kbd>Ctrl</kbd> + <kbd>S</kbd>).</li>
+      <li>Windows 10: <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>M</kbd>으로 마이크를 켜고 <kbd>Win</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd>로 녹화를 시작·종료합니다. 파일은 <b>동영상 → 캡처</b> 폴더에 생깁니다.</li>
+    </ol>
+    <ol data-os="linux">
+      <li>Ubuntu 기본 화면 녹화(<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Alt</kbd> + <kbd>R</kbd>)는 소리가 녹음되지 않습니다.</li>
+      <li>소프트웨어 센터에서 <b>Kooha</b>를 설치하고, 마이크를 켠 뒤 녹화합니다. OBS Studio도 됩니다.</li>
+    </ol>
+    <div data-mode="upload" class="actions">
+      <label class="btn ghost" style="position:relative">만든 동영상 파일 보내기
+        <input id="filepick" type="file" accept="video/*" style="position:absolute;inset:0;opacity:0;cursor:pointer"></label>
+    </div>
+    <p id="filemsg" class="hint" role="status" data-mode="upload"></p>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const show = (id) => ['idle', 'recording', 'done'].forEach((k) => ($(k).hidden = k !== id));
+const pad = (n) => String(n).padStart(2, '0');
+let rec, chunks, streams = [], audio, t0, timer;
+
+// 쓰는 컴퓨터를 추정해 골라 두고, 바꾸면 안내가 바로 바뀝니다.
+const setOs = (os) => { document.body.dataset.os = os; document.querySelector(`input[name="os"][value="${os}"]`).checked = true; };
+const platform = (navigator.userAgentData?.platform || navigator.platform || '').toLowerCase();
+setOs(platform.includes('mac') ? 'mac' : platform.includes('linux') ? 'linux' : 'win');
+document.querySelectorAll('input[name="os"]').forEach((r) => (r.onchange = () => setOs(r.value)));
+
+const stopStreams = () => { streams.forEach((s) => s.getTracks().forEach((t) => t.stop())); streams = []; audio?.close(); };
+
+$('start').onclick = async () => {
+  $('msg').textContent = '';
+  if (!navigator.mediaDevices?.getDisplayMedia || !window.MediaRecorder) {
+    $('msg').textContent = 'PC용 크롬(Windows는 엣지도 됨)에서 열어 주세요. 안 되면 아래 컴퓨터 기본 녹화를 쓰세요.';
+    return;
+  }
+  let mic, screen;
+  try {
+    mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+  } catch {
+    $('msg').textContent = '마이크를 쓸 수 없습니다. 주소창 왼쪽 아이콘을 눌러 마이크를 허용한 뒤 다시 눌러 주세요.';
+    return;
+  }
+  try {
+    // 화면이 자주 바뀌지 않아 10fps면 충분하고, 파일이 작아야 메일·카톡으로 보내기 쉽습니다.
+    screen = await navigator.mediaDevices.getDisplayMedia({ video: { displaySurface: 'window', frameRate: { ideal: 10, max: 15 } }, audio: false });
+  } catch {
+    mic.getTracks().forEach((t) => t.stop());
+    $('msg').textContent = '공유할 화면을 고르지 않으셨거나 화면 기록 권한이 없습니다. 위 안내를 확인하고 다시 눌러 주세요.';
+    return;
+  }
+  streams = [mic, screen];
+
+  // 마이크 소리 크기를 막대로 보여 줍니다.
+  audio = new AudioContext();
+  audio.resume(); // 화면 고르는 데 오래 걸리면 suspended 로 시작해 소리를 못 읽는 경우가 있습니다.
+  const analyser = audio.createAnalyser();
+  audio.createMediaStreamSource(mic).connect(analyser);
+  const buf = new Uint8Array(analyser.fftSize);
+
+  const mimeType = ['video/webm;codecs=vp9,opus', 'video/webm'].find((t) => MediaRecorder.isTypeSupported(t));
+  rec = new MediaRecorder(new MediaStream([...screen.getVideoTracks(), ...mic.getAudioTracks()]), { mimeType, videoBitsPerSecond: 800_000 });
+  chunks = [];
+  rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+  rec.onstop = save;
+  screen.getVideoTracks()[0].onended = stop; // 브라우저의 '공유 중지' 버튼
+  rec.start(1000);
+  t0 = new Date();
+  timer = setInterval(() => {
+    const s = Math.floor((Date.now() - t0) / 1000);
+    timerEl.textContent = `${pad(Math.floor(s / 60))}:${pad(s % 60)}`;
+    analyser.getByteTimeDomainData(buf);
+    levelEl.value = Math.max(...buf.map((v) => Math.abs(v - 128))) / 128;
+  }, 250);
+  show('recording');
+  openPip();
+};
+
+// 녹화 조작판을 모든 탭 위에 떠 있는 작은 창으로 옮깁니다(크롬·엣지의 문서 PIP).
+// 조작판이 다른 문서로 옮겨 가므로 getElementById 대신 미리 잡아 둔 요소를 씁니다.
+const recbar = $('recbar'), timerEl = $('timer'), levelEl = $('level');
+let pip;
+async function openPip() {
+  if (!window.documentPictureInPicture) return; // 지원하지 않는 브라우저는 화면 아래 '공유 중지'로 끝냅니다.
+  try {
+    pip = await documentPictureInPicture.requestWindow({ width: 400, height: 96 });
+  } catch {
+    $('pipbtn').hidden = false; // 클릭 직후가 아니라 막히면 버튼을 한 번 누르게 합니다.
+    return;
+  }
+  $('pipbtn').hidden = true;
+  pip.document.title = '녹화 중';
+  pip.document.head.append(...[...document.querySelectorAll('style, link[rel="stylesheet"]')].map((n) => n.cloneNode(true)));
+  pip.document.body.className = 'pip';
+  pip.document.body.append(recbar);
+  pip.addEventListener('pagehide', () => {
+    $('recording').prepend(recbar); // 떠 있는 창을 닫으면 조작판을 이 페이지로 되돌립니다.
+    pip = null;
+    if (rec?.state === 'recording') $('pipbtn').hidden = false;
+  });
+}
+$('pipbtn').onclick = openPip;
+
+function stop() { if (rec?.state === 'recording') rec.stop(); }
+$('stop').onclick = stop;
+
+function save() {
+  clearInterval(timer);
+  stopStreams();
+  pip?.close();
+  $('pipbtn').hidden = true;
+  const blob = new Blob(chunks, { type: 'video/webm' });
+  const name = `confidback-${t0.getFullYear()}${pad(t0.getMonth() + 1)}${pad(t0.getDate())}-${pad(t0.getHours())}${pad(t0.getMinutes())}.webm`;
+  const a = $('again');
+  if (a.href) URL.revokeObjectURL(a.href);
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  show('done');
+  if (KEY) return upload(blob, $('donemsg'));
+  a.click();
+  $('donemsg').textContent = `${name} 파일이 다운로드 폴더에 저장됐습니다 (${(blob.size / 2 ** 20).toFixed(1)}MB). `
+    + '이 파일을 메일이나 카카오톡으로 개발자에게 보내 주시면 끝입니다.';
+}
+
+// 링크에 업로드 키가 있으면 개발자 보관함(같은 주소의 /api/upload)으로 바로 보냅니다.
+const KEY = new URLSearchParams(location.search).get('k');
+document.body.dataset.mode = KEY ? 'upload' : 'file';
+let uploading = false;
+async function upload(file, msg) {
+  uploading = true;
+  msg.textContent = '개발자에게 보내는 중입니다. 이 창을 닫지 말아 주세요…';
+  try {
+    const r = await fetch('/api/upload', { method: 'POST', headers: { 'X-Upload-Key': KEY, 'Content-Type': file.type || 'video/webm' }, body: file });
+    if (r.status === 507) {
+      msg.textContent = '보관함이 가득 차서 보내지 못했습니다. 개발자에게 알려 주시고, 파일로 저장해 메일이나 카카오톡으로 보내 주세요.';
+      return;
+    }
+    if (!r.ok) throw new Error(r.status);
+    msg.textContent = '개발자에게 보냈습니다. 따로 보내실 필요 없습니다.';
+  } catch {
+    msg.textContent = '보내지 못했습니다. 파일로 저장한 뒤 메일이나 카카오톡으로 보내 주세요.';
+  } finally {
+    uploading = false;
+  }
+}
+$('filepick').onchange = (e) => e.target.files[0] && upload(e.target.files[0], $('filemsg'));
+
+$('restart').onclick = () => show('idle');
+// 녹화나 전송 중에 탭을 닫으면 녹화가 사라지므로 한 번 막습니다.
+addEventListener('beforeunload', (e) => { if (rec?.state === 'recording' || uploading) e.preventDefault(); });
+</script>
+</body>
+</html>

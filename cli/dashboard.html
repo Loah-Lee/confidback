@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confidback 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:#0F172A; --card:#1B2336; --muted:#272F42; --fg:#F8FAFC; --muted-fg:#94A3B8; --border:#475569;
+    --accent:#22C55E; --on-accent:#0F172A; --ring:#FFFFFF;
+    --high:#FCA5A5; --high-bg:rgba(239,68,68,.16); --mid:#FCD34D; --mid-bg:rgba(245,158,11,.16); --low:#CBD5E1; --low-bg:rgba(148,163,184,.16);
+    --sans: "Noto Sans KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font: 16px/1.6 var(--sans); }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  .muted { color: var(--muted-fg); } .small { font-size: .875rem; }
+  .top { display:flex; align-items:baseline; gap:12px; padding:16px 24px; border-bottom:1px solid var(--border); }
+  .top h1 { font-size:1.1rem; margin:0; }
+  .layout { display:grid; grid-template-columns: minmax(0,1fr); }
+  nav { padding:16px; }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 260px minmax(0,1fr); }
+    nav { border-right:1px solid var(--border); min-height: calc(100vh - 58px); }
+  }
+  .label { font-size:.8rem; font-weight:600; color:var(--muted-fg); margin:0 0 8px 12px; }
+  .session { display:flex; flex-direction:column; justify-content:center; min-height:44px; padding:8px 12px; border-radius:8px;
+    color:inherit; text-decoration:none; transition: background-color .15s; }
+  .session:hover { background: var(--muted); }
+  .session[aria-current] { background: var(--muted); box-shadow: inset 3px 0 0 var(--accent); }
+  .session .meta { font-size:.85rem; color:var(--muted-fg); }
+  main { padding: 24px 16px 64px; max-width: 980px; width: 100%; }
+  @media (min-width: 900px) { main { padding: 32px; } }
+  .head { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; }
+  .head h2 { margin:0; font-size:1.4rem; } .head p { margin:2px 0 0; }
+  .stats { display:flex; gap:10px; flex-wrap:wrap; }
+  .stat { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:6px 14px; min-width:84px; font-size:.85rem; color:var(--muted-fg); }
+  .stat b { display:block; font-size:1.4rem; color:var(--fg); font-variant-numeric: tabular-nums; }
+  .panel { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 20px; margin-top:20px; }
+  .panel h3 { margin:0 0 10px; font-size:1rem; }
+  .panel.warn { border-color: rgba(245,158,11,.55); }
+  .panel ul { margin:0; padding-left:1.2em; }
+  .copy { display:flex; gap:8px; }
+  .copy input { flex:1; min-width:0; min-height:44px; padding:0 12px; font: .95rem var(--mono); color:var(--fg);
+    background:var(--bg); border:1px solid var(--border); border-radius:8px; }
+  .btn { font:inherit; font-weight:600; min-height:44px; padding:0 16px; border-radius:8px; border:1px solid var(--border);
+    background:var(--muted); color:var(--fg); cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px;
+    transition: border-color .15s, background-color .15s; white-space:nowrap; }
+  .btn:hover { border-color: var(--muted-fg); }
+  .btn.primary { background:var(--accent); color:var(--on-accent); border-color:transparent; }
+  .btn.primary:hover { background:#4ADE80; }
+  .issues { list-style:none; padding:0; margin:20px 0 0; display:grid; gap:12px; }
+  .issue { display:grid; grid-template-columns: minmax(0,1fr); gap:16px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  @media (min-width: 640px) { .issue { grid-template-columns: 200px minmax(0,1fr); } }
+  .thumb { display:block; aspect-ratio: 4 / 3; border-radius:8px; overflow:hidden; background:var(--muted); }
+  .thumb img { width:100%; height:100%; object-fit:contain; display:block; }
+  a.thumb { transition: box-shadow .15s; } a.thumb:hover { box-shadow: 0 0 0 2px var(--accent); }
+  .thumb.empty { display:grid; place-items:center; color:var(--muted-fg); font-size:.875rem; }
+  .title { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .title h3 { margin:0; font-size:1.05rem; }
+  .num { font-family: var(--mono); color: var(--muted-fg); }
+  .badge { font-size:.8rem; font-weight:700; padding:2px 10px; border-radius:999px; }
+  .badge.high { color:var(--high); background:var(--high-bg); }
+  .badge.mid { color:var(--mid); background:var(--mid-bg); }
+  .badge.low { color:var(--low); background:var(--low-bg); }
+  .field { margin:8px 0 0; } .field b { color:var(--muted-fg); font-weight:500; margin-right:8px; }
+  blockquote { margin:10px 0 0; padding:8px 12px; background:var(--muted); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; }
+  .subject { font-weight:700; margin:0 0 8px; }
+  .mail { white-space:pre-wrap; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  details summary { cursor:pointer; font-weight:600; }
+  .transcript { list-style:none; padding:0; margin:12px 0 0; }
+  .transcript li { display:flex; gap:12px; padding:3px 0; }
+  .transcript time { font-family: var(--mono); color: var(--muted-fg); flex:none; }
+  .raw { white-space:pre-wrap; font: .9rem/1.6 var(--mono); background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; margin-top:20px; }
+  video { display:block; width:100%; max-height:420px; background:#000; border-radius:8px; }
+  .seek { min-height:36px; padding:0 12px; font-size:.9rem; margin-top:10px; }
+  .seek svg { width:14px; height:14px; }
+  .ts { flex:none; font: .9rem var(--mono); color: var(--accent); background:none; border:0; padding:0 4px; border-radius:4px;
+    cursor:pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .empty-state { padding: 64px 0; text-align:center; }
+  .empty-state code { font-family: var(--mono); color: var(--accent); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top"><h1>Confidback</h1><span id="count" class="muted small"></span></header>
+<div class="layout">
+  <nav id="sessions" aria-label="피드백 세션"></nav>
+  <main id="main"></main>
+</div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const { fixer, sessions } = JSON.parse(document.getElementById('data').textContent);
+const AGENT = { codex: 'Codex', claude: 'Claude Code' };
+const other = fixer === 'codex' ? 'claude' : 'codex';
+const PRI = { 높음: 'high', 보통: 'mid', 낮음: 'low' };
+const nav = document.getElementById('sessions');
+const main = document.getElementById('main');
+
+// 데이터는 전부 textContent 로만 넣습니다(받아쓰기·AI 출력이 HTML로 해석되지 않게).
+const h = (tag, props, ...kids) => {
+  const el = Object.assign(document.createElement(tag), props);
+  el.append(...kids.filter((k) => k != null && k !== false));
+  return el;
+};
+const when = (t) => new Date(t).toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+const highCount = (s) => s.issues.filter((i) => i.priority === '높음').length;
+const stat = (k, v) => h('div', { className: 'stat' }, h('b', { textContent: String(v) }), k);
+const projectName = (s) => s.project?.split('/').pop() ?? null;
+const field = (k, v) => v ? h('p', { className: 'field' }, h('b', { textContent: k }), v) : null;
+
+// 원본 녹화를 그 시점부터 재생합니다. 대표 말이 애매할 때 직접 듣고 보기 위해서입니다.
+const secs = (t) => t.split(':').reduce((a, b) => a * 60 + Number(b), 0);
+function seek(t) {
+  const v = document.getElementById('original');
+  v.currentTime = secs(t);
+  v.play();
+  v.scrollIntoView({ block: 'center' });
+}
+const PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>';
+const seekBtn = (t) => {
+  const b = h('button', { type: 'button', className: 'btn seek' }, h('span', { innerHTML: PLAY }), `${t}부터 원본 보기`);
+  b.onclick = () => seek(t);
+  return b;
+};
+
+function copyButton(label, text) {
+  const btn = h('button', { type: 'button', className: 'btn', textContent: label });
+  btn.onclick = async () => {
+    try { await navigator.clipboard.writeText(text); btn.textContent = '복사됨'; }
+    catch { btn.textContent = '복사 실패 — 직접 선택해 주세요'; }
+    setTimeout(() => (btn.textContent = label), 1500);
+  };
+  return btn;
+}
+
+function issue(i, n, dir, hasVideo) {
+  const t = hasVideo && i.quote.match(/\[(\d{2}:\d{2})\]/)?.[1];
+  const thumb = i.frame
+    ? h('a', { href: `${dir}/${i.frame}`, target: '_blank', className: 'thumb', ariaLabel: `${n + 1}번 이슈 화면 캡처 크게 보기` },
+        h('img', { src: `${dir}/${i.frame}`, alt: '', loading: 'lazy' }))
+    : h('div', { className: 'thumb empty', textContent: '캡처 없음' });
+  return h('li', { className: 'issue' }, thumb,
+    h('div', {},
+      h('div', { className: 'title' },
+        h('span', { className: 'num', textContent: `#${n + 1}` }),
+        h('h3', { textContent: i.title }),
+        i.priority ? h('span', { className: `badge ${PRI[i.priority] ?? 'low'}`, textContent: i.priority }) : null),
+      field('화면', i.screen),
+      i.quote ? h('blockquote', { textContent: i.quote }) : null,
+      t ? seekBtn(t) : null,
+      field('바꿀 것', i.change)));
+}
+
+function renderSession(s) {
+  const dir = encodeURIComponent(s.name);
+  const cmd = `confidback fix ${s.name}`;
+  main.replaceChildren(...[ // 없는 칸(null)이 "null" 글자로 찍히지 않게 걸러 냅니다.
+    h('div', { className: 'head' },
+      h('div', {}, h('h2', { textContent: when(s.time) }),
+        h('p', { className: 'muted small', textContent: [projectName(s) ?? '프로젝트 미지정', s.appUrl, s.name].filter(Boolean).join(' · ') })),
+      h('div', { className: 'stats' }, stat('이슈', s.issues.length), stat('높음', highCount(s)), stat('확인 필요', s.confirm.length))),
+    s.video
+      ? h('section', { className: 'panel' }, h('h3', { textContent: '원본 녹화' }),
+          h('video', { id: 'original', src: s.video, controls: true, preload: 'metadata' }),
+          h('p', { className: 'muted small', textContent: '이슈나 받아쓰기의 시각을 누르면 그 시점부터 재생됩니다.' }))
+      : null,
+    h('section', { className: 'panel' },
+      h('h3', { textContent: '수정 시작' }),
+      h('div', { className: 'copy' }, h('input', { value: cmd, readOnly: true, ariaLabel: '수정 시작 명령' }), copyButton('복사', cmd)),
+      h('p', { className: 'muted small', textContent: `${s.project ? `${projectName(s)} 프로젝트에서` : '처음 실행하면 어느 프로젝트인지 고른 뒤'} ${AGENT[fixer]}가 인터뷰 형식으로 시작합니다. ${AGENT[other]}로 하려면 뒤에 --with ${other} 를 붙이세요.` })),
+    h('section', { className: 'panel' },
+      h('h3', { textContent: '개선 완료 체크' }),
+      ...(s.done
+        ? [h('p', { textContent: `${when(s.done.checkedAt)}에 완료로 체크했습니다.${s.done.deleteAfter ? ` 보관함의 원본은 ${when(s.done.deleteAfter)} 이후 지워집니다.` : ''}` })]
+        : [h('div', { className: 'copy' }, h('input', { value: `confidback done ${s.name}`, readOnly: true, ariaLabel: '개선 완료 체크 명령' }), copyButton('복사', `confidback done ${s.name}`)),
+           h('p', { className: 'muted small', textContent: '개선을 마치고 확인했으면 실행하세요. 보관함의 원본은 체크 24시간 뒤 지워집니다.' })])),
+    s.issues.length
+      ? h('ol', { className: 'issues', ariaLabel: '이슈 목록' }, ...s.issues.map((i, n) => issue(i, n, dir, !!s.video)))
+      : h('pre', { className: 'raw', textContent: s.md }),
+    s.confirm.length
+      ? h('section', { className: 'panel warn' }, h('h3', { textContent: '대표에게 확인할 것' }),
+          h('ul', {}, ...s.confirm.map((c) => h('li', { textContent: c }))))
+      : null,
+    s.email
+      ? h('section', { className: 'panel' }, h('h3', { textContent: '메일 초안' }),
+          h('p', { className: 'subject', textContent: s.email.subject }),
+          h('div', { className: 'mail', textContent: s.email.body }),
+          h('div', { className: 'actions' },
+            h('a', { href: s.mailto, className: 'btn primary', textContent: '메일 앱에서 열기' }),
+            copyButton('본문 복사', `${s.email.subject}\n\n${s.email.body}`)))
+      : null,
+    s.transcript.length
+      ? h('details', { className: 'panel' }, h('summary', { textContent: `받아쓰기 원문 (${s.transcript.length}줄)` }),
+          h('ol', { className: 'transcript' }, ...s.transcript.map(([t, text]) => {
+            const ts = s.video ? h('button', { type: 'button', className: 'ts', textContent: t, ariaLabel: `${t}부터 원본 보기` }) : h('time', { textContent: t });
+            if (s.video) ts.onclick = () => seek(t);
+            return h('li', {}, ts, text);
+          })))
+      : null,
+  ].filter(Boolean));
+}
+
+function route() {
+  const name = decodeURIComponent(location.hash.slice(1));
+  const active = sessions.find((s) => s.name === name) ?? sessions[0];
+  document.getElementById('count').textContent = `피드백 ${sessions.length}건`;
+  nav.replaceChildren(h('h2', { className: 'label', textContent: '피드백' }), ...sessions.map((s) => {
+    const a = h('a', { href: `#${encodeURIComponent(s.name)}`, className: 'session' },
+      h('span', { textContent: when(s.time) }),
+      h('span', { className: 'meta', textContent: [projectName(s) ?? '프로젝트 미지정', `이슈 ${s.issues.length}`, highCount(s) && `높음 ${highCount(s)}`, s.done && '완료'].filter(Boolean).join(' · ') }));
+    if (s === active) a.setAttribute('aria-current', 'page');
+    return a;
+  }));
+  if (active) renderSession(active);
+  else main.replaceChildren(h('div', { className: 'empty-state' },
+    h('h2', { textContent: '아직 정리된 피드백이 없습니다' }),
+    h('p', { className: 'muted' }, h('code', { textContent: 'confidback run <녹화 파일>' }), ' 을 실행하면 여기에 나타납니다.')));
+}
+addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>
